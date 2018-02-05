@@ -1,0 +1,35 @@
+---
+title: "Crystal Lake Perch Exploratory Analysis"
+author: "Noah Lottig"
+date: "2/3/2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+#get data
+#lter_fish <- read_csv("https://lter.limnology.wisc.edu/file/12848/download?token=-0G3eTcJCnat50PvBQYK2hTp9d8BWIA447_iz0NcH94")
+```
+
+## Crystal Lake Perch 
+
+Preliminary analysis of long-term LTER data in Crystal Lake examining patterns in Perch and Smelt following the whole-lake mixing project. In late July 2017 NRL and LTER fish crew observed that perch CPUE appeared to be higher than ever recalled (NRL involved in fish crew since 2009).
+
+```{r perch}
+CR_Fish = lter_fish %>% filter(lakeid=="CR") %>% filter(spname =="YELLOWPERCH" | spname == "RAINBOWSMELT")
+CR_Fish$CPUE = round(CR_Fish$total_caught/CR_Fish$effort,digits=3)
+CR_Fish$spname = as.factor(CR_Fish$spname)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
