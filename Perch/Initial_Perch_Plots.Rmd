@@ -3,15 +3,15 @@ title: "Crystal Lake Perch Exploratory Analysis"
 author: "Noah Lottig"
 date: "2/3/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 #get data
-#lter_fish <- read_csv("https://lter.limnology.wisc.edu/file/12848/download?token=-0G3eTcJCnat50PvBQYK2hTp9d8BWIA447_iz0NcH94")
+lter_fish <- read_csv("https://lter.limnology.wisc.edu/file/12848/download?token=5N8uA_-_e8eCa9qJZCaVgS43Szwh21tQgIyj_Pn7n5Y")
 ```
 
 ## Crystal Lake Perch 
@@ -19,17 +19,95 @@ library(tidyverse)
 Preliminary analysis of long-term LTER data in Crystal Lake examining patterns in Perch and Smelt following the whole-lake mixing project. In late July 2017 NRL and LTER fish crew observed that perch CPUE appeared to be higher than ever recalled (NRL involved in fish crew since 2009).
 
 ```{r perch}
-CR_Fish = lter_fish %>% filter(lakeid=="CR") %>% filter(spname =="YELLOWPERCH" | spname == "RAINBOWSMELT")
+CR_Fish = lter_fish %>% filter(lakeid=="CR") %>% 
+    filter(spname =="YELLOWPERCH" | spname == "RAINBOWSMELT")
 CR_Fish$CPUE = round(CR_Fish$total_caught/CR_Fish$effort,digits=3)
 CR_Fish$spname = as.factor(CR_Fish$spname)
 ```
 
-## Including Plots
+### Long-term Vertical Gill Net CPUE
+CPUE is summed across all gill nets. Grey bar denotes CR Mixing Exp.
 
-You can also embed plots, for example:
+```{r VGN, echo=FALSE}
+CR_VGN = CR_Fish %>% filter(grepl("VGN",gearid)) %>% complete(year4=full_seq(1981:2017,1),spname) %>% replace(., is.na(.), 0) %>% group_by(year4,spname) %>% summarise(total_CPUE = sum(CPUE))
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+myplot = ggplot(data=CR_VGN, aes(x=year4, y=total_CPUE, group=spname)) +
+  geom_rect(aes(xmin = 2011.5, xmax = 2013.5, ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+  geom_line(aes(color=spname)) +
+  geom_point(aes(color=spname))
+
+myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + labs(x="Year",y="VGN CPUE", colour="Species")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Long-term Beach Seine CPUE
+ 
+```{r BS, echo=FALSE}
+CR_BS = CR_Fish %>% filter(grepl("BS",gearid)) %>% complete(year4=full_seq(1981:2017,1),spname) %>% replace(., is.na(.), 0) %>% group_by(year4,spname)
+
+myplot = ggplot(data=CR_BS, aes(x=year4, y=CPUE, group=spname)) +
+  geom_rect(aes(xmin = 2011.5, xmax = 2013.5, ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+  geom_line(aes(color=spname)) +
+  geom_point(aes(color=spname)) 
+
+myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + labs(x="Year",y="Beach Seine CPUE", colour="Species")
+```
+
+### Long-term Fyke Net CPUE
+ 
+```{r FYKE, echo=FALSE}
+CR_FYK = CR_Fish %>% filter(grepl("FYK",gearid)) %>% complete(year4=full_seq(1981:2017,1),spname) %>% replace(., is.na(.), 0)
+
+myplot = ggplot(data=CR_FYK, aes(x=year4, y=(CPUE+1), group=spname)) +
+    geom_rect(aes(xmin = 2011.5, xmax = 2013.5, ymin = 1, ymax = 3000), fill = "grey", alpha = 0.03) +
+  geom_line(aes(color=spname)) +
+  geom_point(aes(color=spname)) +
+    scale_y_continuous(trans='log10')
+
+myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = c(0.5, 0.85)) + labs(x="Year",y="Fyke CPUE", colour="Species")
+```
+<br>Note the extremely high CPUE for RS in 2016. NRL actually was on the crew that pulled a fyke net with estimated 16k perch. The fyke at over 2kg of RS (approx weight of yoy RS 0.2g). Note that the y-axis is log10 scaled.
+
+###Long-term Trammel Net CPUE
+```{r trammel, echo=FALSE}
+CR_TRA = CR_Fish %>% filter(grepl("TRAMM",gearid)) %>% complete(year4=full_seq(1981:2017,1) ,spname) %>% replace(., is.na(.), 0)
+
+myplot = ggplot(data=CR_TRA, aes(x=year4, y=CPUE)) +
+    geom_rect(aes(xmin = 2011.5, xmax = 2013.5, ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+    geom_line(aes(color=spname)) +
+    geom_point(aes(color=spname)) 
+
+myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + labs(x="Year",y="Trammel CPUE", colour="Species")
+
+```
+
+\newpage
+###Size Frequency Distributions
+
+```{r sizedata,echo=FALSE}
+fish.length = read.csv("https://lter.limnology.wisc.edu/file/12833/download?token=Rt4vdX88uKw4w043as1qjpA2RxB8VguAIYLF96LapAU")
+CR.length = fish.length %>% filter(lakeid=="CR") %>% 
+    filter(spname =="YELLOWPERCH" | spname == "RAINBOWSMELT") %>%
+    filter(grepl("VGN",gearid)) %>% drop_na(length)
+```
+```{r ypdistributions}
+myplot = ggplot(CR.length %>% filter(spname=="YELLOWPERCH" & year4 >=2011),aes(x=length)) +
+    geom_histogram(binwidth=5,colour="black",fill="#00BFC4") +
+    facet_grid(year4 ~ .,scales="free")
+myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + 
+    labs(x="Length (mm)",y="Count ") + xlim(c(100,275))
+```
+Size frequency distributions for Yellow Perch caught in VGN each year since the Crystal lake mixing experiment (mixed in 2012 and 2013)
+
+\newpage
+```{r rsdistributions}
+myplot = ggplot(CR.length %>% filter(spname=="RAINBOWSMELT" & year4 >=2011),aes(x=length)) + 
+    geom_histogram(binwidth=5,colour="black",fill="#F8766D") +
+    facet_grid(year4 ~ .,scales="free_y")
+myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + 
+    labs(x="Length (mm)",y="Count ") + xlim(c(90,250))
+```
+Size frequency distributions for Rainbow Smelt caught in VGN each year since the Crystal lake mixing experiment (mixed in 2012 and 2013)
