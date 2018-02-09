@@ -3,10 +3,9 @@ title: "Crystal Lake Perch Exploratory Analysis"
 author: "Noah Lottig"
 date: "2/5/2018"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
-  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -27,8 +26,8 @@ CR_Fish$CPUE = round(CR_Fish$total_caught/CR_Fish$effort,digits=3)
 CR_Fish$spname = as.factor(CR_Fish$spname)
 ```
 
-## Long-term Vertical Gill Net CPUE
-CPUE is summed across all gill nets. Grey bar denotes CR Mixing Exp.
+##Long-term Vertical Gill Net CPUE
+
 
 ```{r VGN, echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
 CR_VGN = CR_Fish %>% filter(grepl("VGN",gearid)) %>% complete(year4=full_seq(1981:2017,1),spname) %>% replace(., is.na(.), 0) %>% group_by(year4,spname) %>% summarise(total_CPUE = sum(CPUE))
@@ -41,9 +40,13 @@ myplot = ggplot(data=CR_VGN, aes(x=year4, y=total_CPUE, group=spname)) +
 myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + labs(x="Year",y="VGN CPUE", colour="Species")
 ```
 
-### Long-term Beach Seine CPUE
+
+CPUE is summed across all gill nets. Grey bar denotes CR Mixing Exp.
+\newpage
+
+## Long-term Beach Seine CPUE
  
-```{r BS, echo=FALSE}
+```{r BS, echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
 CR_BS = CR_Fish %>% filter(grepl("BS",gearid)) %>% complete(year4=full_seq(1981:2017,1),spname) %>% replace(., is.na(.), 0) %>% group_by(year4,spname)
 
 myplot = ggplot(data=CR_BS, aes(x=year4, y=CPUE, group=spname)) +
@@ -54,9 +57,9 @@ myplot = ggplot(data=CR_BS, aes(x=year4, y=CPUE, group=spname)) +
 myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + labs(x="Year",y="Beach Seine CPUE", colour="Species")
 ```
 
-### Long-term Fyke Net CPUE
+## Long-term Fyke Net CPUE
  
-```{r FYKE, echo=FALSE}
+```{r FYKE, echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
 CR_FYK = CR_Fish %>% filter(grepl("FYK",gearid)) %>% complete(year4=full_seq(1981:2017,1),spname) %>% replace(., is.na(.), 0)
 
 myplot = ggplot(data=CR_FYK, aes(x=year4, y=(CPUE+1), group=spname)) +
@@ -67,10 +70,10 @@ myplot = ggplot(data=CR_FYK, aes(x=year4, y=(CPUE+1), group=spname)) +
 
 myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = c(0.5, 0.85)) + labs(x="Year",y="Fyke CPUE", colour="Species")
 ```
-<br>Note the extremely high CPUE for RS in 2016. NRL actually was on the crew that pulled a fyke net with estimated 11k RS. The fyke at over 2kg of RS (approx weight of yoy RS 0.2g). Note that the y-axis is log10 scaled.
+<br>Note the extremely high CPUE for RS in 2016. NRL actually was on the crew that pulled a fyke net with estimated 11k RS. The fyke had over 2kg of RS (approx weight of yoy RS 0.2g). Note that the y-axis is log10 scaled.
 
-###Long-term Trammel Net CPUE
-```{r trammel, echo=FALSE}
+##Long-term Trammel Net CPUE
+```{r trammel, echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
 CR_TRA = CR_Fish %>% filter(grepl("TRAMM",gearid)) %>% complete(year4=full_seq(1981:2017,1) ,spname) %>% replace(., is.na(.), 0)
 
 myplot = ggplot(data=CR_TRA, aes(x=year4, y=CPUE)) +
@@ -83,7 +86,7 @@ myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = e
 ```
 
 \newpage
-###Size Frequency Distributions
+##Size Frequency Distributions
 
 ```{r sizedata,echo=FALSE,cache=TRUE}
 fish.length = read.csv("https://lter.limnology.wisc.edu/file/12833/download?token=Rt4vdX88uKw4w043as1qjpA2RxB8VguAIYLF96LapAU")
