@@ -11,6 +11,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(lubridate)
 #get data
 lter_fish <- read_csv("https://lter.limnology.wisc.edu/file/12848/download?token=5N8uA_-_e8eCa9qJZCaVgS43Szwh21tQgIyj_Pn7n5Y")
 ```
@@ -118,8 +119,9 @@ myplot + theme_bw() + theme(panel.border = element_blank(),
 Size frequency distributions for Rainbow Smelt caught in VGN each year since the Crystal lake mixing experiment (mixed in 2012 and 2013)
 
 \newpage
-```{r o2temp, echo=FALSE,cache=TRUE}
-o2temp = read.csv("https://lter.limnology.wisc.edu/file/12809/download?token=JYdz8XZAHxsISPBLENdIuoQ5ma171D4B_Vd4WgpWCYQ")
+##TDO3 and Thermocline Dynamics
+```{r o2temp, echo=FALSE,cache=TRUE,results='hide',message="hide",warning="hide"}
+o2temp = read.csv("https://lter.limnology.wisc.edu/file/12809/download?token=lbJ-Kq0OqWwwyUxs05XcS7wcItC7m0BClXkFvrJXAP8")
 
 # get unique dates for which temp/do profiles were taken
 cr.sampledates = o2temp %>% filter(lakeid=="CR") %>% 
@@ -136,12 +138,55 @@ o2temp.cr = o2temp %>% filter(lakeid=="CR") %>% drop_na(o2) %>%
   group_by(sampledate) %>% slice(which.min(abs(o2diff))) %>% 
   filter(month(sampledate)>4) %>% 
   right_join(cr.sampledates)
-
+```
+```{r tdo3 plot,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
 myplot = ggplot(o2temp.cr,aes(x=sampledate,y=wtemp,group=1)) +
+    geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
     geom_line()
 myplot + theme_bw() + theme(panel.border = element_blank(), 
     panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
     axis.line = element_line(colour = "black")) + 
-    labs(x="Year",y="TDO3")
+    labs(x="Year",y="TDO3 (deg C)")
+```
+TDO3 was estimated using temp/do profiles collected by LTER. TDO3 identified for each sampling event represents the
+water temperature value closest to 3 mg/L but less than 4 mg/L. For example, 15m was 5.2 mg/L DO and 16m was 1.8mg/L...
+TDO3 was reported as the water temperature at 16m.
 
+```{r tdo3depth plot,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
+myplot = ggplot(o2temp.cr,aes(x=sampledate,y=depth,group=1)) +
+    geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+    geom_line()
+myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) + 
+    labs(x="Year",y="Depth (m) at DO~3 mg/L") + ylim(c(20,0))
+```
+Depth at DO~3 mg/L estimated the same way as described for TDO3
+\newpage
+```{r nutrient data, echo=FALSE,cache=TRUE}
+secchi = read.csv("https://lter.limnology.wisc.edu/file/12812/download?token=WPuz1P1Z3edMqHnFqIEYWpQ482CNoUD1Is7Y0vhLSGk")
+secchi.cr = secchi %>% filter(lakeid=="CR") %>% select(sampledate,secnview) %>% 
+    mutate(sampledate=as_date(as.character(sampledate))) %>% 
+    drop_na()
+waterlevels = read.csv("https://lter.limnology.wisc.edu/file/12640/download?token=pxsZaN2dXceFjyF1Hkld0Z9sd2RRD-EoWyXqo9kulqw")
+waterlevel.cr = waterlevels %>% filter(lakeid=="CR") %>% select(sampledate,llevel_elevation) %>% 
+    mutate(sampledate=as_date(as.character(sampledate))) %>% 
+    drop_na()
+```
+##Nutrients and Water Clarity
+```{r nutrient plots,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
+myplot = ggplot(secchi.cr,aes(x=sampledate,y=secnview,group=1)) +
+    geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+    geom_line()
+myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) + 
+    labs(x="Year",y="Water Clarity (m)") + ylim(c(20,0))
+myplot = ggplot(waterlevel.cr,aes(x=sampledate,y=llevel_elevation,group=1)) +
+    geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+    geom_line()
+myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) + 
+    labs(x="Year",y="Water level (m)")
 ```
