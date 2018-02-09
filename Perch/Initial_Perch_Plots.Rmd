@@ -116,3 +116,32 @@ myplot + theme_bw() + theme(panel.border = element_blank(),
     labs(x="Length (mm)",y="Count ") + xlim(c(90,250))
 ```
 Size frequency distributions for Rainbow Smelt caught in VGN each year since the Crystal lake mixing experiment (mixed in 2012 and 2013)
+
+\newpage
+```{r o2temp, echo=FALSE,cache=TRUE}
+o2temp = read.csv("https://lter.limnology.wisc.edu/file/12809/download?token=JYdz8XZAHxsISPBLENdIuoQ5ma171D4B_Vd4WgpWCYQ")
+
+# get unique dates for which temp/do profiles were taken
+cr.sampledates = o2temp %>% filter(lakeid=="CR") %>% 
+  select(sampledate) %>% distinct(sampledate) %>% 
+  mutate(sampledate=as_date(as.character(sampledate)))
+
+#select the samples for which DO was less than 4 mg/L and closest to 3mg/L
+#and merge back in all sampledates so we have NA values when DO was not
+#less than 4 mg/L
+o2temp.cr = o2temp %>% filter(lakeid=="CR") %>% drop_na(o2) %>%
+  select(sampledate,depth,wtemp,o2) %>% 
+  mutate(o2diff=o2-3) %>% filter(o2diff < 1) %>% 
+  mutate(sampledate=as_date(as.character(sampledate))) %>% 
+  group_by(sampledate) %>% slice(which.min(abs(o2diff))) %>% 
+  filter(month(sampledate)>4) %>% 
+  right_join(cr.sampledates)
+
+myplot = ggplot(o2temp.cr,aes(x=sampledate,y=wtemp,group=1)) +
+    geom_line()
+myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) + 
+    labs(x="Year",y="TDO3")
+
+```
