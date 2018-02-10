@@ -1,0 +1,59 @@
+---
+title: "Crystal Lake Perch REU"
+output:
+  word_document: default
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(gridExtra)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Background
+The introduction of Rainbow Smelt (*Osmerus mordax*) in two NTL-LTER lakes (Sparkling and Crystal Lakes) has resulted in substantial declines in naturally reproducing populations of several game species including Perch (*Perca*), Walleye (*Sander vitreus*), and Cisco (*Coregonus artedi*). In 2011, a whole lake manipulation was initiated in Crystal Lake to destratify the lake and increase the water column temperatures beyond the thermal limits of Rainbow Smelt in an effort to extripate them from the lake (Lawsen et al. 2015). The results from this effort were mixed and, after two years of mixing (2012 & 2013), it was clear that a segment of the Rainbow Smelt population were able to tolerate warmer than anticipated water temperatures. While the mixing effort failed to extripate Rainbow Smelt, continued NTL-LTER monitoring of the fish community in Crystal Lake suggest that the effort may have released the native Perch population. In 2017 we observed Perch populations approaching levels observed prior to the introduction of Rainbow Smelt along with clear evidence of multiple different age classes of Perch in the lake.
+
+```{r fishdata,echo=FALSE,cache=TRUE, results='hide',message=FALSE}
+lter_fish <- read_csv("data/fish_abundance.csv")
+CR_Fish = lter_fish %>% filter(lakeid=="CR") %>% 
+    filter(spname =="YELLOWPERCH" | spname == "RAINBOWSMELT")
+CR_Fish$CPUE = round(CR_Fish$total_caught/CR_Fish$effort,digits=3)
+CR_Fish$spname = as.factor(CR_Fish$spname)
+CR_VGN = CR_Fish %>% filter(grepl("VGN",gearid)) %>% complete(year4=full_seq(1981:2017,1),spname) %>% replace(., is.na(.), 0) %>% group_by(year4,spname) %>% summarise(total_CPUE = sum(CPUE))
+
+fish.length = read.csv("data/fish_length.csv")
+CR.length = fish.length %>% filter(lakeid=="CR") %>% 
+    filter(spname =="YELLOWPERCH" & year4==2017) %>%
+    filter(grepl("VGN",gearid)) %>% drop_na(length)
+
+```
+```{r plots,echo=FALSE,fig.width=6.5,fig.height=2.5,fig.align="center"}
+myplot = ggplot(data=CR_VGN, aes(x=year4, y=total_CPUE, group=spname)) +
+  geom_rect(aes(xmin = 2011.5, xmax = 2013.5, ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+  geom_line(aes(color=spname)) +
+  geom_point(aes(color=spname))
+
+p1 = myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + labs(x="Year",y="VGN CPUE", colour="Species")
+
+myplot = ggplot(CR.length,aes(x=length)) +
+    geom_histogram(binwidth=5,colour="black",fill="#00BFC4")
+p2 = myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + 
+    labs(x="Length (mm)",y="Count ") + xlim(c(100,275))
+grid.arrange(p1, p2, ncol=2)
+```
+\newline 
+
+**Figure 1**. Long-term vertical gill net CPUE (left) and Perch size distribution (2017; right) in Crystal Lake. Grey bar in left figure denotes the Crystal Lake mixing experiment.
+
+##Research Proposal
+Given the increase in the Perch population in Crystal Lake along with the emergance of multiple age classes that suggest successful recruitment over the past several years, it is critical to begin gaining a better understanding of this population and the factors that may have lead to the release of Perch. We propose recruiting a REU student to develop a research project focused around understanding the current Perch and Rainbow Smelt populations, age structure, and diets. The REU student would analyze archived fish scales to quantify Perch growth rates since the mixing experiment, help conduct more intensive sampling of the fish communities to gain a better understanding of the current Perch and Rainbow Smelt population, and conduct diet analyses to assess potential shifts in Perch and Rainbow Smelt diets since the mixing experiment. Results from the REU students efforts are likely to provide insights into the factors that lead to the potential release of the native Perch population in Crystal Lake. Additionaly, these efforts will be critical for LTER and our understanding of the long-term fish community dynamics in Crystal Lake and how they may have unexpectedly changed as a result of the whole lake mixing manipulation.
+
+##Mentoring Plan
+The REU student will be mentored by Greg Sass and Noah Lottig. 
+
