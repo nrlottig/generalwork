@@ -1,10 +1,12 @@
 ---
 title: "Crystal Lake Perch REU"
 output:
+  pdf_document:
   word_document: default
-  pdf_document: default
   html_document:
     df_print: paged
+fontsize: 11pt
+geometry: margin=.5in
 ---
 
 ```{r setup, include=FALSE}
@@ -47,8 +49,6 @@ p2 = myplot + theme_bw() + theme(panel.border = element_blank(),
     labs(x="Length (mm)",y="Count ") + xlim(c(100,275))
 grid.arrange(p1, p2, ncol=2)
 ```
-\newline 
-
 **Figure 1**. Long-term vertical gill net CPUE (left) and Perch size distribution (2017; right) in Crystal Lake. Grey bar in left figure denotes the Crystal Lake mixing experiment.
 
 ##Research Proposal
