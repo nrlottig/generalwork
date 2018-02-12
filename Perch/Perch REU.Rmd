@@ -1,5 +1,4 @@
 ---
-title: "Crystal Lake Perch REU"
 output:
   pdf_document:
   word_document: default
@@ -15,10 +14,8 @@ library(lubridate)
 library(gridExtra)
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
 ## Background
-The introduction of Rainbow Smelt (*Osmerus mordax*) in two NTL-LTER lakes (Sparkling and Crystal Lakes) has resulted in substantial declines in naturally reproducing populations of several game species including Perch (*Perca*), Walleye (*Sander vitreus*), and Cisco (*Coregonus artedi*). In 2011, a whole lake manipulation was initiated in Crystal Lake to destratify the lake and increase the water column temperatures beyond the thermal limits of Rainbow Smelt in an effort to extripate them from the lake (Lawsen et al. 2015). The results from this effort were mixed and, after two years of mixing (2012 & 2013), it was clear that a segment of the Rainbow Smelt population were able to tolerate warmer than anticipated water temperatures. While the mixing effort failed to extripate Rainbow Smelt, continued NTL-LTER monitoring of the fish community in Crystal Lake suggest that the effort may have released the native Perch population. In 2017 we observed Perch populations approaching levels observed prior to the introduction of Rainbow Smelt along with clear evidence of multiple different age classes of Perch in the lake.
-
+The introduction and establishment of invasive rainbow smelt (*Osmerus mordax*) in two NTL-LTER lakes (Sparkling and Crystal) has resulted in functional extirpations of formerly naturally reproducing populations of native yellow perch (*Perca flavescens*), walleye (*Sander vitreus*), and cisco (*Coregonus artedi*). In 2011, a whole lake manipulation was initiated in Crystal Lake to destratify the lake and increase water column temperatures above the thermal limits of rainbow smelt in an effort to extripate them from the lake (Lawson et al. 2015). Results from this effort were mixed, and after two years of mixing (2012 & 2013), it was clear that a segment of the rainbow smelt population was able to tolerate warmer than anticipated water temperatures. Although the mixing effort failed to extirpate rainbow smelt, continued NTL-LTER monitoring of the fish community in Crystal Lake suggests that the effort may have released the remnant native yellow perch population from former constraints imposed by rainbow smelt dominance. In 2017, we observed yellow perch relative abundances approaching levels observed prior to the introduction of rainbow smelt along with clear evidence of multiple age classes of yellow perch present in the lake.
 ```{r fishdata,echo=FALSE,cache=TRUE, results='hide',message=FALSE}
 lter_fish <- read_csv("data/fish_abundance.csv")
 CR_Fish = lter_fish %>% filter(lakeid=="CR") %>% 
@@ -49,11 +46,10 @@ p2 = myplot + theme_bw() + theme(panel.border = element_blank(),
     labs(x="Length (mm)",y="Count ") + xlim(c(100,275))
 grid.arrange(p1, p2, ncol=2)
 ```
-**Figure 1**. Long-term vertical gill net CPUE (left) and Perch size distribution (2017; right) in Crystal Lake. Grey bar in left figure denotes the Crystal Lake mixing experiment.
+**Figure 1**. Long-term vertical gill net CPUE (left) and yellow perch length distribution (2017; right) in Crystal Lake. Grey bar in left figure denotes the Crystal Lake mixing experiment.
 
 ##Research Proposal
-Given the increase in the Perch population in Crystal Lake along with the emergance of multiple age classes that suggest successful recruitment over the past several years, it is critical to begin gaining a better understanding of this population and the factors that may have lead to the release of Perch. We propose recruiting a REU student to develop a research project focused around understanding the current Perch and Rainbow Smelt populations, age structure, and diets. The REU student would analyze archived fish scales to quantify Perch growth rates since the mixing experiment, help conduct more intensive sampling of the fish communities to gain a better understanding of the current Perch and Rainbow Smelt population, and conduct diet analyses to assess potential shifts in Perch and Rainbow Smelt diets since the mixing experiment. Results from the REU students efforts are likely to provide insights into the factors that lead to the potential release of the native Perch population in Crystal Lake. Additionaly, these efforts will be critical for LTER and our understanding of the long-term fish community dynamics in Crystal Lake and how they may have unexpectedly changed as a result of the whole lake mixing manipulation.
+Given the increase in the native yellow perch population in Crystal Lake, along with the observation of multiple age classes suggesting successful natural recruitment over the past three years, it is critical to gain a better understanding of this fish community and the factors that may have led to the release of yellow perch. We propose recruiting a REU student to develop a research project focused around understanding the current yellow perch and rainbow smelt populations and their age/size-structure and foraging behavior. The REU student would analyze archived fish scales to quantify yellow perch growth rates since the mixing experiment, help conduct more intensive sampling of the fish community to gain a better understanding of the current yellow perch and rainbow smelt populations, and conduct diet content analyses to test for potential shifts in yellow perch and rainbow smelt diets since the mixing experiment. Results from the REU student's efforts are likely to provide insights into the factors that led to the potential competitive/predatory release of the native yellow perch population in Crystal Lake and be used to inform food web and species-interactions models. Additionally, these efforts will be critical for LTER and our understanding of the long-term fish community dynamics in Crystal Lake and how they may have unexpectedly changed as a result of the whole lake mixing manipulation.
 
 ##Mentoring Plan
-The REU student will be mentored by Greg Sass and Noah Lottig. 
-
+The REU student will be mentored by Noah Lottig and Greg Sass. 
