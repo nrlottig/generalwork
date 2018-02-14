@@ -20,7 +20,7 @@ lter_fish <- read_csv("https://lter.limnology.wisc.edu/file/12848/download?token
 
 Preliminary analysis of long-term LTER data in Crystal Lake examining patterns in Perch and Smelt following the whole-lake mixing project. In late July 2017 NRL and LTER fish crew observed that perch CPUE appeared to be higher than ever recalled (NRL involved in fish crew since 2009).
 
-```{r perch}
+```{r perch,include=FALSE}
 CR_Fish = lter_fish %>% filter(lakeid=="CR") %>% 
     filter(spname =="YELLOWPERCH" | spname == "RAINBOWSMELT")
 CR_Fish$CPUE = round(CR_Fish$total_caught/CR_Fish$effort,digits=3)
@@ -90,37 +90,38 @@ myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = e
 ##Size Frequency Distributions
 
 ```{r sizedata,echo=FALSE,cache=TRUE}
-fish.length = read.csv("https://lter.limnology.wisc.edu/file/12833/download?token=Rt4vdX88uKw4w043as1qjpA2RxB8VguAIYLF96LapAU")
+fish.length = read.csv("https://lter.limnology.wisc.edu/sites/default/files/data/ntl6_v5.csv")
 CR.length = fish.length %>% filter(lakeid=="CR") %>% 
     filter(spname =="YELLOWPERCH" | spname == "RAINBOWSMELT") %>%
     filter(grepl("VGN",gearid)) %>% drop_na(length)
 ```
-```{r ypdistributions}
-myplot = ggplot(CR.length %>% filter(spname=="YELLOWPERCH" & year4 >=2011),aes(x=length)) +
+```{r ypdistributions,echo=FALSE,fig.height=8}
+myplot = ggplot(CR.length %>% filter(spname=="YELLOWPERCH" & year4 >=2008),aes(x=length)) +
     geom_histogram(binwidth=5,colour="black",fill="#00BFC4") +
     facet_grid(year4 ~ .,scales="free")
 myplot + theme_bw() + theme(panel.border = element_blank(), 
     panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
     axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + 
-    labs(x="Length (mm)",y="Count ") + xlim(c(100,275))
+    labs(x="Length (mm)",y="Count ") + xlim(c(100,275)) + ylim(c(0,50))
 ```
-Size frequency distributions for Yellow Perch caught in VGN each year since the Crystal lake mixing experiment (mixed in 2012 and 2013)
+Size frequency distributions for Yellow Perch caught in VGN each year since the Crystal lake mixing experiment (mixed in 2012 and 2013).
 
 \newpage
-```{r rsdistributions}
-myplot = ggplot(CR.length %>% filter(spname=="RAINBOWSMELT" & year4 >=2011),aes(x=length)) + 
+```{r rsdistributions,echo=FALSE,fig.height=8}
+myplot = ggplot(CR.length %>% filter(spname=="RAINBOWSMELT" & year4 >=2008),aes(x=length)) + 
     geom_histogram(binwidth=5,colour="black",fill="#F8766D") +
     facet_grid(year4 ~ .,scales="free_y")
-myplot + theme_bw() + theme(panel.border = element_blank(), 
+myplot = myplot + theme_bw() + theme(panel.border = element_blank(), 
     panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
     axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + 
-    labs(x="Length (mm)",y="Count ") + xlim(c(90,250))
+    labs(x="Length (mm)",y="Count ") + xlim(c(90,250)) + ylim(c(0,400))
+suppressWarnings(print(myplot))
 ```
-Size frequency distributions for Rainbow Smelt caught in VGN each year since the Crystal lake mixing experiment (mixed in 2012 and 2013)
+Size frequency distributions for Rainbow Smelt caught in VGN each year since the Crystal lake mixing experiment (mixed in 2012 and 2013).
 
 \newpage
 ##TDO3 and Thermocline Dynamics
-```{r o2temp, echo=FALSE,cache=TRUE,results='hide',message="hide",warning="hide"}
+```{r o2temp, echo=FALSE,cache=TRUE,results='hide',message="hide",warning="hide",include=FALSE}
 o2temp = read.csv("https://lter.limnology.wisc.edu/file/12809/download?token=lbJ-Kq0OqWwwyUxs05XcS7wcItC7m0BClXkFvrJXAP8")
 
 # get unique dates for which temp/do profiles were taken
@@ -138,32 +139,43 @@ o2temp.cr = o2temp %>% filter(lakeid=="CR") %>% drop_na(o2) %>%
   group_by(sampledate) %>% slice(which.min(abs(o2diff))) %>% 
   filter(month(sampledate)>4) %>% 
   right_join(cr.sampledates)
+
+thermal_layers_all_years <- read_csv("data/thermal_layers_all_years.CSV")
+cr.thermal = thermal_layers_all_years %>% filter(lakeid=="CR") %>% select(sampledate,epibot) %>% 
+     mutate(sampledate=as_date(sampledate))
+
+o2temp.cr = o2temp.cr %>% full_join(cr.thermal)
 ```
-```{r tdo3 plot,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
+```{r tdo3 plot,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center",results='hide',message="hide",warning="hide"}
 myplot = ggplot(o2temp.cr,aes(x=sampledate,y=wtemp,group=1)) +
     geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
     geom_line()
-myplot + theme_bw() + theme(panel.border = element_blank(), 
+myplot = myplot + theme_bw() + theme(panel.border = element_blank(), 
     panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
     axis.line = element_line(colour = "black")) + 
     labs(x="Year",y="TDO3 (deg C)")
+suppressWarnings(print(myplot))
 ```
 TDO3 was estimated using temp/do profiles collected by LTER. TDO3 identified for each sampling event represents the
 water temperature value closest to 3 mg/L but less than 4 mg/L. For example, 15m was 5.2 mg/L DO and 16m was 1.8mg/L...
 TDO3 was reported as the water temperature at 16m.
 
 ```{r tdo3depth plot,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
-myplot = ggplot(o2temp.cr,aes(x=sampledate,y=depth,group=1)) +
+myplot = ggplot(o2temp.cr,aes(x=sampledate,y=epibot,group=1)) +
     geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
-    geom_line()
-myplot + theme_bw() + theme(panel.border = element_blank(), 
+    geom_line(aes(color="Thermocline")) +
+    geom_line(aes(y=depth,color="Depth at TDO3"),size=1)
+    
+myplot = myplot + theme_bw() + theme(panel.border = element_blank(), 
     panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
-    axis.line = element_line(colour = "black")) + 
-    labs(x="Year",y="Depth (m) at DO~3 mg/L") + ylim(c(20,0))
+    axis.line = element_line(colour = "black"),legend.position = "top",legend.direction = "horizontal",legend.title=element_blank()) + 
+    labs(x="Year",y="Depth (m)") + ylim(c(22,0)) +
+    scale_size_manual(values = c(10, 3))
+suppressWarnings(print(myplot))
 ```
-Depth at DO~3 mg/L estimated the same way as described for TDO3
+Depth at DO~3 mg/L estimated the same way as described for TDO3. Epilimnetic depth (bottom of epi) is derived from temp/DO curves.
 \newpage
-```{r nutrient data, echo=FALSE,cache=TRUE}
+```{r waterclarity lakelevel, echo=FALSE,cache=TRUE}
 secchi = read.csv("https://lter.limnology.wisc.edu/file/12812/download?token=WPuz1P1Z3edMqHnFqIEYWpQ482CNoUD1Is7Y0vhLSGk")
 secchi.cr = secchi %>% filter(lakeid=="CR") %>% select(sampledate,secnview) %>% 
     mutate(sampledate=as_date(as.character(sampledate))) %>% 
@@ -173,15 +185,8 @@ waterlevel.cr = waterlevels %>% filter(lakeid=="CR") %>% select(sampledate,lleve
     mutate(sampledate=as_date(as.character(sampledate))) %>% 
     drop_na()
 ```
-##Nutrients and Water Clarity
-```{r nutrient plots,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
-myplot = ggplot(secchi.cr,aes(x=sampledate,y=secnview,group=1)) +
-    geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
-    geom_line()
-myplot + theme_bw() + theme(panel.border = element_blank(), 
-    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
-    axis.line = element_line(colour = "black")) + 
-    labs(x="Year",y="Water Clarity (m)") + ylim(c(20,0))
+##Basic Limnology
+```{r clarity level plots,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
 myplot = ggplot(waterlevel.cr,aes(x=sampledate,y=llevel_elevation,group=1)) +
     geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
     geom_line()
@@ -189,4 +194,50 @@ myplot + theme_bw() + theme(panel.border = element_blank(),
     panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
     axis.line = element_line(colour = "black")) + 
     labs(x="Year",y="Water level (m)")
+myplot = ggplot(secchi.cr,aes(x=sampledate,y=secnview,group=1)) +
+    geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+    geom_line()
+myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) + 
+    labs(x="Year",y="Water Clarity (m)") + ylim(c(20,0))
+```
+
+\newpage
+```{r nutrient data,echo=FALSE,include=FALSE}
+nutrients = read_csv("https://lter.limnology.wisc.edu/sites/default/files/data/ntl1_v5.csv")
+chlorphyll = read_csv("https://lter.limnology.wisc.edu/sites/default/files/data/ntl35_v2.csv")
+cr.chl = chlorphyll %>% filter(lakeid=="CR") %>% select(sampledate,depth,chlor) %>% 
+    group_by(sampledate) %>% slice(1:2) %>% filter(chlor>0.0001) %>% 
+    group_by(sampledate) %>% summarise(mean=mean(chlor))
+cr.nutrients = nutrients %>% filter(lakeid=="CR") %>% select(sampledate,depth,totpuf,totnuf) %>% 
+    gather(key = nutrient,value = value,-c(sampledate,depth)) %>% drop_na(value) %>% 
+    arrange(sampledate,depth,nutrient) %>% group_by(sampledate,nutrient) %>% slice(1:2) %>% 
+    group_by(sampledate,nutrient) %>% summarise(mean=mean(value))
+```
+```{r nutrient plots plots,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
+myplot = ggplot(data=cr.chl,aes(x=sampledate,y=mean,group=3)) +
+    geom_rect(aes(xmin = as_date("2012-04-01"), xmax = as_date("2013-12-31"), ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+    geom_line(aes(color="chla"))+
+    geom_line(data = cr.nutrients %>% filter(nutrient=="totpuf"),aes(x=sampledate,y=mean,color="totpuf")) +
+    geom_line(data = cr.nutrients %>% filter(nutrient=="totnuf"),aes(x=sampledate,y=(mean/10),color="totnuf *0.1"))
+    
+myplot + theme_bw() + theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black"),legend.position = c(0.15, 0.85)) + 
+    labs(x="Year",y="Nutrient Concentration") + ylim(0,50)
+
+```
+Average Eplilimnetic nutrent concentrations. Mean value of the first two depths for water chemistry. SOP is sample surface then bottom of Epi. TN values multipled by 0.1 to plot on the same scale as TP
+
+```{r zoop,echo=FALSE,include=FALSE}
+zoop_abund <- read_csv("data/zoop_abund.csv")
+zoop_abund = zoop_abund %>% gather(key = Zoop_Species,value = Abundance,-c(YEAR))
+```
+
+```{r zoop plots,echo=FALSE,fig.width=6.5,fig.height=3,fig.align="center"}
+myplot = ggplot(data=zoop_abund, aes(x=YEAR, y=Abundance, group=Zoop_Species)) +
+  geom_rect(aes(xmin = 2011.5, xmax = 2013.5, ymin = -Inf, ymax = Inf), fill = "grey", alpha = 0.03) +
+  geom_line(aes(color=Zoop_Species))
+myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "top",legend.direction = "horizontal",legend.title=element_blank()) + labs(x="Year",y="Avg Annual Abundance (no/L)", colour="Species")
 ```
