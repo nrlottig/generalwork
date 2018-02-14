@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Background
 The introduction and establishment of invasive rainbow smelt (*Osmerus mordax*) in two NTL-LTER lakes (Sparkling and Crystal) has resulted in functional extirpations of formerly naturally reproducing populations of native yellow perch (*Perca flavescens*), walleye (*Sander vitreus*), and cisco (*Coregonus artedi*). In 2011, a whole lake manipulation was initiated in Crystal Lake to destratify the lake and increase water column temperatures above the thermal limits of rainbow smelt in an effort to extripate them from the lake (Lawson et al. 2015). Results from this effort were mixed, and after two years of mixing (2012 & 2013), it was clear that a segment of the rainbow smelt population was able to tolerate warmer than anticipated water temperatures. Although the mixing effort failed to extirpate rainbow smelt, continued NTL-LTER monitoring of the fish community in Crystal Lake suggests that the effort may have released the remnant native yellow perch population from former constraints imposed by rainbow smelt dominance. In 2017, we observed yellow perch relative abundances approaching levels observed prior to the introduction of rainbow smelt along with clear evidence of multiple age classes of yellow perch present in the lake.
+
 ```{r fishdata,echo=FALSE,cache=TRUE, results='hide',message=FALSE}
 lter_fish <- read_csv("data/fish_abundance.csv")
 CR_Fish = lter_fish %>% filter(lakeid=="CR") %>% 
