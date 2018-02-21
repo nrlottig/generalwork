@@ -241,3 +241,4 @@ myplot = ggplot(data=zoop_abund, aes(x=YEAR, y=Abundance, group=Zoop_Species)) +
   geom_line(aes(color=Zoop_Species))
 myplot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "top",legend.direction = "horizontal",legend.title=element_blank()) + labs(x="Year",y="Avg Annual Abundance (no/L)", colour="Species")
 ```
+Interesting that the Calanoid and Cyclopoid abundances flip right about the time that RS populations started increasing.
