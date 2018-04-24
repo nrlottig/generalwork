@@ -1,0 +1,33 @@
+---
+title: "Explination and Fix for the WI LKLS N-unit Issue"
+author: "Noah Lottig"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Overview
+
+During a preliminary analysis using LAGOSNE V1.087.1, a researcher noted that several observations of TKN and NO2NO3 seemed extremely low in Wisconsin. A more detailed analysis suggested that an error in source provided metadata for the WI_LKLS program resulted in data for these two variables to be imported into LAGOSNE as mg/L instead of ug/L. We were able to determine that the units in the source provided metadata were wrong by comparing TKN and NO2NO3 values collected by other research organizations for the same lakes. These observations were all approximately 1 order of magnitude greater than the observations in WI_LKLS program. Additionially, the individual that processed the data for import into LAGOSNE originally noted that although the metadata said the units were in ug/L, he believed the units were actually mg/L as we determined based on comparisons to other research programs studying the same lakes.,
+
+```{r lagosne}
+library(LAGOSNE)
+dt = lagosne_load("1.087.1")
+dat = dt$epi_nutr
+dat %>% filter(programname=="WI_LKLS") %>% select(lagoslakeid,sampledate,tkn,no2no3) %>% summary()
+```
+Summary of TKN and NO2NO3 data for the WI_LKLS program. As is clear, the median TKN value in LAGOSNE v1.087.1 is <1 ug/L and the median value for NO2NO3 is 0.01 ug/L. The fix is relatively easy. Just multiply the TKN and NO2NO3 values by 1000
+
+##Data Fix Script
+```{r wilkls_fix}
+#Fix TKN
+dat$tkn[which(dat$programname=="WI_LKLS")] = dat$tkn[which(dat$programname=="WI_LKLS")]*1000
+dat$no2no3[which(dat$programname=="WI_LKLS")] = dat$no2no3[which(dat$programname=="WI_LKLS")]*1000
+#Look at summary of data to ensure we appropriately fixed the issue
+dat %>% filter(programname=="WI_LKLS") %>% select(lagoslakeid,sampledate,tkn,no2no3) %>% summary()
+```
+
+These make sense ecologically and are in line with observations from other programs in WI that have sampled the same lakes during similar time periods.
