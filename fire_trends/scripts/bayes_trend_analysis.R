@@ -7,6 +7,7 @@ library(arm)
 
 #load data
 dat <- read_csv("data/hexagon_WildfireArea.csv",col_types = cols(.default="d",year="i"))
+dat <- dat[,-1]
 
 sink("model.txt")
 cat("
@@ -37,11 +38,11 @@ sink()
 slope_trend <- data.frame(region=character(),trend=logical(),slope_prob=numeric(),rhat=numeric())
 slope_trend$region = as.character(slope_trend$region)
 
-for(i in 2:ncol(dat)) {
+for(i in 1:(ncol(dat)-1)) {
     #------------------------------------------------------------------------------
     # THE DATA.
     n = nrow(dat)
-    x = dat[[1]]
+    x = dat$Year
     xName="year"
     y = dat[[i]]
     yName=names(dat)[i]
@@ -97,7 +98,7 @@ for(i in 2:ncol(dat)) {
     out.stats[2] <- slopeSign
     out.stats[3] <- round(slopeProbs,digits = 4)
     out.stats[4] <-round(BugsOut[2,8],3)
-    slope_trend[(i-1),] <- out.stats
+    slope_trend[i,] <- out.stats
     
 }
 write_csv(x = slope_trend,path = "data/wildfire_area_probs.csv")
