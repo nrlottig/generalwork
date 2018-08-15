@@ -1,0 +1,20 @@
+
+    model {
+    
+    # Priors
+    a ~ dnorm(0, 0.001)
+    b ~ dnorm(0, 0.001)
+    tau ~ dgamma( 0.001 , 0.001 )
+    
+    # Likelihood: 
+    for (i in 1:n){
+        y[i] ~ dt(mu[i], tau, tdf)               # Distribution for random part
+        mu[i] <- a + b * x[i]          # Linear predictor
+    } # i
+    
+    # Derived quantities
+    udf ~ dunif(0,1)
+    tdf <- 1 - tdfGain * log(1-udf) # tdf in [1,Inf).
+
+    } # end model
+    
