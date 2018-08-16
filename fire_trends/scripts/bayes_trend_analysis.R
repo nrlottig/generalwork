@@ -6,7 +6,7 @@ library(MCMCpack)
 library(arm)
 
 #load data
-dat <- read_csv("data/hexagon_WildfireArea.csv",col_types = cols(.default="d",year="i"))
+dat <- read_csv("data/hexagon_WildfireArea_ha.csv",col_types = cols(.default="d",Year="i"))
 dat <- dat[,-1]
 
 sink("model.txt")
@@ -51,7 +51,7 @@ for(i in 1:(ncol(dat)-1)) {
     tdfGain = 1 # 1 for low-baised tdf, 100 for high-biased tdf
     datalist = list(
         x = x-min(x) ,
-        y = log((y*100)+1) ,
+        y = log(y+1) , #natural log transform area (+1 for zero data), asin(sqrt) for proportion
         n = n,
         tdfGain = tdfGain
     )
@@ -87,11 +87,12 @@ for(i in 1:(ncol(dat)-1)) {
     slopeSign <- out1$mean$b > 0     
     # calc
     slopeProbs <- numeric()
-    if(slopeSign > 0){
-        slopeProbs <- mean(slopes > 0)
-    } else {
-        slopeProbs <- mean(slopes < 0)
-    }
+    slopeProbs <- mean(slopes > 0)
+    # if(slopeSign > 0){
+    #     slopeProbs <- mean(slopes > 0)
+    # } else {
+    #     slopeProbs <- mean(slopes < 0)
+    # }
     
     out.stats = matrix(nrow = 1,ncol = 4,data = NA)
     out.stats[1] <- as.character(yName)
